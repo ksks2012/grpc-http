@@ -58,3 +58,8 @@ go build ./cmd/grpc-http
 go get github.com/fullstorydev/grpcurl
 go install github.com/fullstorydev/grpcurl/cmd/grpcurl
 ```
+
+## test
+```
+grpcurl -plaintext localhost:8001 proto.TagService.GetTagList
+```
