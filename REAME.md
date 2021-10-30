@@ -49,6 +49,30 @@ protoc -I/usr/local/include -I. -I$GOPATH/src -I$GOPATH/src/github.com/grpc-scos
 	--grpc-gateway_out=logtostderr=true:. ./proto/*.proto
 ```
 
+## gen code with buf
+
+### reference
+
+https://docs.buf.build/tour/introduction
+
+### gen buf.yaml
+
+```bash
+buf config init
+```
+
+### Update mode
+
+```bash
+buf mod update
+```
+
+### gen go code
+
+```bash
+buf generate
+```
+
 
 # build project
 ```
