@@ -38,9 +38,18 @@ go get -u github.com/golang/protobuf/protoc-gen-go
 
 # compile proto
 
+## basic
 ```
 protoc --go_out=plugins=grpc:. ./proto/*.proto
 ```
+
+## with google.api.http
+```
+protoc -I/usr/local/include -I. -I$GOPATH/src -I$GOPATH/src/github.com/grpc-scosystem/grpc-gateway/third_party/googleapis \
+	--grpc-gateway_out=logtostderr=true:. ./proto/*.proto
+```
+
+
 # build project
 ```
 go build ./cmd/grpc-http
@@ -70,4 +79,16 @@ grpcurl -plaintext localhost:8001 proto.TagService.GetTagList
 ## install
 ```
 go get -u github.com/soheilhy/cmux@v0.1.4
+```
+
+# grpc-gateway
+
+## install
+```
+go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
+```
+
+## move binary file
+```
+mv $GOPATH/bin/protoc-gen-grpc-gateway /usr/local/go/bin/
 ```
