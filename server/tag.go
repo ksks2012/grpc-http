@@ -11,7 +11,9 @@ import (
 	pb "github.com/grpc-http/proto"
 )
 
-type TagServer struct{}
+type TagServer struct {
+	pb.TagServiceServer
+}
 
 func NewTagServer() *TagServer {
 	return &TagServer{}
