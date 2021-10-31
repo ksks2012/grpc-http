@@ -122,3 +122,14 @@ go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
 ```
 mv $GOPATH/bin/protoc-gen-grpc-gateway /usr/local/go/bin/
 ```
+
+# doc
+
+## install protoc swagger
+```
+go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger
+```
+
+```
+go get -u github.com/go-bindata/go-bindata/...
+```
