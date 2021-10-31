@@ -45,7 +45,7 @@ func RunServer(port string) error {
 }
 
 func RunGrpcGatewayServer() *runtime.ServeMux {
-	endpoint := "0.0.0.0" + port
+	endpoint := "0.0.0.0:" + port
 	gwmux := runtime.NewServeMux()
 	dopts := []grpc.DialOption{grpc.WithInsecure()}
 	_ = pb.RegisterTagServiceHandlerFromEndpoint(context.Background(), gwmux, endpoint, dopts)
