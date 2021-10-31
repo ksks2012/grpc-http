@@ -11,7 +11,9 @@ import (
 	// "runtime"
 	"strings"
 
+	assetfs "github.com/elazarl/go-bindata-assetfs"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/grpc-http/pkg/swagger"
 	pb "github.com/grpc-http/proto"
 	"github.com/grpc-http/server"
 	"golang.org/x/net/http2"
@@ -100,13 +102,18 @@ func RunTCPServer(port string) (net.Listener, error) {
 
 func RunHttpServer() *http.ServeMux {
 	serveMux := http.NewServeMux()
-	serveMux.HandleFunc("/ping",
-		func(w http.ResponseWriter, r *http.Request) {
-			_, _ = w.Write([]byte(`pong`))
-		},
-	)
-
+	serveMux.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(`pong`))
+	})
+	prefix := "/swagger-ui/"
+	fileServer := http.FileServer(&assetfs.AssetFS{
+		Asset:    swagger.Asset,
+		AssetDir: swagger.AssetDir,
+		Prefix:   "third_party/swagger-ui",
+	})
+	serveMux.Handle(prefix, http.StripPrefix(prefix, fileServer))
 	return serveMux
+
 }
 
 func RunGrpcServer() *grpc.Server {
