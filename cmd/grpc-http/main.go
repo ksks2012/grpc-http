@@ -7,6 +7,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"path"
 
 	// "runtime"
 	"strings"
@@ -112,8 +113,19 @@ func RunHttpServer() *http.ServeMux {
 		Prefix:   "third_party/swagger-ui",
 	})
 	serveMux.Handle(prefix, http.StripPrefix(prefix, fileServer))
-	return serveMux
+	serveMux.HandleFunc("/swagger/", func(w http.ResponseWriter, r *http.Request) {
+		if !strings.HasSuffix(r.URL.Path, "swagger.json") {
+			http.NotFound(w, r)
+			return
+		}
 
+		p := strings.TrimPrefix(r.URL.Path, "/swagger/")
+		p = path.Join("proto", p)
+
+		http.ServeFile(w, r, p)
+	})
+
+	return serveMux
 }
 
 func RunGrpcServer() *grpc.Server {
