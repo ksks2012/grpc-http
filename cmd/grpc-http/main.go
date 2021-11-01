@@ -129,8 +129,18 @@ func RunHttpServer() *http.ServeMux {
 }
 
 func RunGrpcServer() *grpc.Server {
-	s := grpc.NewServer()
+	opts := []grpc.ServerOption{
+		grpc.UnaryInterceptor(HelloInterceptor),
+	}
+	s := grpc.NewServer(opts...)
 	pb.RegisterTagServiceServer(s, server.NewTagServer())
 	reflection.Register(s)
 	return s
+}
+
+func HelloInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+	log.Println("Hello")
+	resp, err := handler(ctx, req)
+	log.Println("bye")
+	return resp, err
 }
