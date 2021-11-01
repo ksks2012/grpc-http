@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	assetfs "github.com/elazarl/go-bindata-assetfs"
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/grpc-http/pkg/swagger"
 	pb "github.com/grpc-http/proto"
@@ -130,7 +131,10 @@ func RunHttpServer() *http.ServeMux {
 
 func RunGrpcServer() *grpc.Server {
 	opts := []grpc.ServerOption{
-		grpc.UnaryInterceptor(HelloInterceptor),
+		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
+			HelloInterceptor,
+			WorldInterceptor,
+		)),
 	}
 	s := grpc.NewServer(opts...)
 	pb.RegisterTagServiceServer(s, server.NewTagServer())
@@ -142,5 +146,12 @@ func HelloInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServ
 	log.Println("Hello")
 	resp, err := handler(ctx, req)
 	log.Println("bye")
+	return resp, err
+}
+
+func WorldInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+	log.Println("World")
+	resp, err := handler(ctx, req)
+	log.Println("bye World")
 	return resp, err
 }
