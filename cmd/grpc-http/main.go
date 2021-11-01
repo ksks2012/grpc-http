@@ -15,6 +15,7 @@ import (
 	assetfs "github.com/elazarl/go-bindata-assetfs"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/grpc-http/internal/middleware"
 	"github.com/grpc-http/pkg/swagger"
 	pb "github.com/grpc-http/proto"
 	"github.com/grpc-http/server"
@@ -132,8 +133,7 @@ func RunHttpServer() *http.ServeMux {
 func RunGrpcServer() *grpc.Server {
 	opts := []grpc.ServerOption{
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
-			HelloInterceptor,
-			WorldInterceptor,
+			middleware.AccessLog,
 		)),
 	}
 	s := grpc.NewServer(opts...)
