@@ -135,6 +135,7 @@ func RunGrpcServer() *grpc.Server {
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			middleware.AccessLog,
 			middleware.ErrorLog,
+			middleware.Recovery,
 		)),
 	}
 	s := grpc.NewServer(opts...)
