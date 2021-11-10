@@ -101,6 +101,7 @@ grpcurl -plaintext localhost:8001 proto.TagService.GetTagList
 curl http://127.0.0.1:8004/ping
 curl http://127.0.0.1:8004/api/v1/tags
 grpcurl -plaintext localhost:8004 proto.TagService.GetTagList
+grpcurl -plaintext -d '{"name":"RUST"}' localhost:8004 proto.TagService.GetTagList
 ```
 
 
