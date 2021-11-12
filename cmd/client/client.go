@@ -11,13 +11,31 @@ import (
 	"google.golang.org/grpc/codes"
 )
 
+type Auth struct {
+	AppKey    string
+	AppSecret string
+}
+
+func (a *Auth) GetRequestMetadata(ctx context.Context, uri ...string) (map[string]string, error) {
+	return map[string]string{"app_key": a.AppKey, "app_secret": a.AppSecret}, nil
+}
+
+func (a *Auth) RequireTransportSecurity() bool {
+	return false
+}
+
 func main() {
+	auth := Auth{
+		AppKey:    "hong",
+		AppSecret: "blog-service",
+	}
 	ctx := context.Background()
-	clientConn, _ := GetClientConn(
-		ctx,
-		"localhost:18080",
-		[]grpc.DialOption{grpc.WithBlock()},
-	)
+	opts := []grpc.DialOption{grpc.WithPerRPCCredentials(&auth)}
+	// FIXME: target
+	clientConn, err := GetClientConn(ctx, "localhost:8004", opts)
+	if err != nil {
+		log.Fatalf("err: %v", err)
+	}
 	defer clientConn.Close()
 
 	tagServiceClient := pb.NewTagServiceClient(clientConn)
@@ -27,7 +45,6 @@ func main() {
 }
 
 func GetClientConn(ctx context.Context, target string, opts []grpc.DialOption) (*grpc.ClientConn, error) {
-	// opts []grpc.DialOption
 	opts = append(opts, grpc.WithUnaryInterceptor(
 		grpc_middleware.ChainUnaryClient(
 			grpc_retry.UnaryClientInterceptor(
