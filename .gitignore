@@ -40,3 +40,4 @@ Icon
 /var-data/**
 
 /grpc-http
+/client

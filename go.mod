@@ -10,6 +10,7 @@ require (
 	github.com/googleapis/googleapis v0.0.0-20211028214346-e1ba41ed437a // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.1.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0 // indirect
+	github.com/opentracing/opentracing-go v1.1.0 // indirect
 	github.com/soheilhy/cmux v0.1.4
 	golang.org/x/net v0.0.0-20211029224645-99673261e6eb // indirect
 	golang.org/x/sys v0.0.0-20211031064116-611d5d643895 // indirect
