@@ -45,6 +45,7 @@ func main() {
 }
 
 func GetClientConn(ctx context.Context, target string, opts []grpc.DialOption) (*grpc.ClientConn, error) {
+	opts = append(opts, grpc.WithInsecure())
 	opts = append(opts, grpc.WithUnaryInterceptor(
 		grpc_middleware.ChainUnaryClient(
 			grpc_retry.UnaryClientInterceptor(
