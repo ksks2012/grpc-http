@@ -6,10 +6,18 @@ import (
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_retry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
+	"github.com/grpc-http/global"
+	"github.com/grpc-http/internal/middleware"
 	pb "github.com/grpc-http/proto"
+	"github.com/opentracing/opentracing-go"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 )
+
+func init() {
+	global.Tracer = opentracing.GlobalTracer()
+	opentracing.SetGlobalTracer(global.Tracer)
+}
 
 type Auth struct {
 	AppKey    string
@@ -48,6 +56,11 @@ func GetClientConn(ctx context.Context, target string, opts []grpc.DialOption) (
 	opts = append(opts, grpc.WithInsecure())
 	opts = append(opts, grpc.WithUnaryInterceptor(
 		grpc_middleware.ChainUnaryClient(
+			middleware.UnaryContextTimeout(),
+		),
+	))
+	opts = append(opts, grpc.WithUnaryInterceptor(
+		grpc_middleware.ChainUnaryClient(
 			grpc_retry.UnaryClientInterceptor(
 				grpc_retry.WithMax(2),
 				grpc_retry.WithCodes(
@@ -58,5 +71,11 @@ func GetClientConn(ctx context.Context, target string, opts []grpc.DialOption) (
 			),
 		),
 	))
+	opts = append(opts, grpc.WithUnaryInterceptor(
+		grpc_middleware.ChainUnaryClient(
+			middleware.ClientTracing(),
+		),
+	))
+
 	return grpc.DialContext(ctx, target, opts...)
 }

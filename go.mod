@@ -4,6 +4,7 @@ go 1.16
 
 require (
 	github.com/elazarl/go-bindata-assetfs v1.0.1 // indirect
+	github.com/fullstorydev/grpcurl v1.8.5 // indirect
 	github.com/go-bindata/go-bindata v1.0.0 // indirect
 	github.com/golang/glog v1.0.0 // indirect
 	github.com/golang/protobuf v1.5.2

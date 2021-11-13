@@ -11,26 +11,31 @@ import (
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/metadata"
 )
 
 func ServerTracing(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		md = metadata.New(nil)
+		md = metadata.New(map[string]string{"key1": "val1", "key2": "val2"})
 	}
 
-	parentSpanContext, _ := global.Tracer.Extract(opentracing.TextMap, metatext.MetaDataTextMap{md})
-	spanOpts := []opentracing.StartSpanOption{
-		opentracing.Tag{Key: string(ext.Component), Value: "gRPC"},
-		ext.SpanKindRPCServer,
-		ext.RPCServerOption(parentSpanContext),
+	parentSpanContext, err := global.Tracer.Extract(opentracing.TextMap, metatext.MetaDataTextMap{md}.Copy())
+	if err != nil && err != opentracing.ErrSpanContextNotFound {
+		grpclog.Errorf("extract from metadata err: %v", err)
+	} else {
+		spanOpts := []opentracing.StartSpanOption{
+			opentracing.Tag{Key: string(ext.Component), Value: "gRPC"},
+			ext.SpanKindRPCServer,
+			ext.RPCServerOption(parentSpanContext),
+		}
+
+		span := global.Tracer.StartSpan(info.FullMethod, spanOpts...)
+		defer span.Finish()
+
+		ctx = opentracing.ContextWithSpan(ctx, span)
 	}
-
-	span := global.Tracer.StartSpan(info.FullMethod, spanOpts...)
-	defer span.Finish()
-
-	ctx = opentracing.ContextWithSpan(ctx, span)
 	return handler(ctx, req)
 }
 

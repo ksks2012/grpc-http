@@ -15,10 +15,12 @@ import (
 	assetfs "github.com/elazarl/go-bindata-assetfs"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/grpc-http/global"
 	"github.com/grpc-http/internal/middleware"
 	"github.com/grpc-http/pkg/swagger"
 	pb "github.com/grpc-http/proto"
 	"github.com/grpc-http/server"
+	"github.com/opentracing/opentracing-go"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 	"google.golang.org/grpc"
@@ -32,6 +34,8 @@ var port string
 func init() {
 	flag.StringVar(&port, "port", "8004", "啟動通訊埠編號")
 	flag.Parse()
+	global.Tracer = opentracing.GlobalTracer()
+	opentracing.SetGlobalTracer(global.Tracer)
 }
 
 func main() {
