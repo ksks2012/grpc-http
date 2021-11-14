@@ -18,9 +18,9 @@ import (
 	"github.com/grpc-http/global"
 	"github.com/grpc-http/internal/middleware"
 	"github.com/grpc-http/pkg/swagger"
+	"github.com/grpc-http/pkg/tracer"
 	pb "github.com/grpc-http/proto"
 	"github.com/grpc-http/server"
-	"github.com/opentracing/opentracing-go"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 	"google.golang.org/grpc"
@@ -34,8 +34,11 @@ var port string
 func init() {
 	flag.StringVar(&port, "port", "8004", "啟動通訊埠編號")
 	flag.Parse()
-	global.Tracer = opentracing.GlobalTracer()
-	opentracing.SetGlobalTracer(global.Tracer)
+
+	err := setupTracer()
+	if err != nil {
+		log.Fatalf("init.setupTracer err: %v", err)
+	}
 }
 
 func main() {
@@ -149,16 +152,11 @@ func RunGrpcServer() *grpc.Server {
 	return s
 }
 
-func HelloInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-	log.Println("Hello")
-	resp, err := handler(ctx, req)
-	log.Println("bye")
-	return resp, err
-}
-
-func WorldInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-	log.Println("World")
-	resp, err := handler(ctx, req)
-	log.Println("bye World")
-	return resp, err
+func setupTracer() error {
+	jaegerTracer, _, err := tracer.NewJaegerTracer("grpc-http server", "127.0.0.1:6831")
+	if err != nil {
+		return err
+	}
+	global.Tracer = jaegerTracer
+	return nil
 }

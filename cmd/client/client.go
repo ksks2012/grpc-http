@@ -8,15 +8,17 @@ import (
 	grpc_retry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
 	"github.com/grpc-http/global"
 	"github.com/grpc-http/internal/middleware"
+	"github.com/grpc-http/pkg/tracer"
 	pb "github.com/grpc-http/proto"
-	"github.com/opentracing/opentracing-go"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 )
 
 func init() {
-	global.Tracer = opentracing.GlobalTracer()
-	opentracing.SetGlobalTracer(global.Tracer)
+	err := setupTracer()
+	if err != nil {
+		log.Fatalf("init.setupTracer err: %v", err)
+	}
 }
 
 type Auth struct {
@@ -78,4 +80,13 @@ func GetClientConn(ctx context.Context, target string, opts []grpc.DialOption) (
 	))
 
 	return grpc.DialContext(ctx, target, opts...)
+}
+
+func setupTracer() error {
+	jaegerTracer, _, err := tracer.NewJaegerTracer("grpc-http client", "127.0.0.1:6831")
+	if err != nil {
+		return err
+	}
+	global.Tracer = jaegerTracer
+	return nil
 }
